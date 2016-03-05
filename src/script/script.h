@@ -568,6 +568,10 @@ public:
     unsigned int GetSigOpCount(const CScript& scriptSig) const;
 
     bool IsPayToPublicKeyHash() const;
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+=======
+
+>>>>>>> main: start of address index
     bool IsPayToScriptHash() const;
 
     int Type() const;

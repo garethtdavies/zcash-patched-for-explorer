@@ -17,6 +17,7 @@
 class CBlockFileInfo;
 class CBlockIndex;
 struct CDiskTxPos;
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 
 // START insightexplorer
 struct CAddressUnspentKey;
@@ -36,6 +37,9 @@ typedef std::pair<CAddressIndexKey, CAmount> CAddressIndexDbEntry;
 typedef std::pair<CSpentIndexKey, CSpentIndexValue> CSpentIndexDbEntry;
 // END insightexplorer
 
+=======
+struct CAddressIndexKey;
+>>>>>>> main: start of address index
 class uint256;
 
 //! -dbcache default (MiB)
@@ -89,6 +93,7 @@ public:
     bool ReadReindexing(bool &fReindex);
     bool ReadTxIndex(const uint256 &txid, CDiskTxPos &pos);
     bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &list);
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 
     // START insightexplorer
     bool UpdateAddressUnspentIndex(const std::vector<CAddressUnspentDbEntry> &vect);
@@ -106,6 +111,10 @@ public:
     bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
     // END insightexplorer
 
+=======
+    bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+    bool ReadAddressIndex(uint160 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex);
+>>>>>>> main: start of address index
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts();

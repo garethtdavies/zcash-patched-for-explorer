@@ -201,8 +201,11 @@ unsigned int CScript::GetSigOpCount(const CScript& scriptSig) const
     return subscript.GetSigOpCount(true);
 }
 
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 // insightexplorer
 // https://github.com/bitpay/bitcoin/commit/017f548ea6d89423ef568117447e61dd5707ec42#diff-f7ca24fb80ddba0f291cb66344ca6fcbR204
+=======
+>>>>>>> main: start of address index
 bool CScript::IsPayToPublicKeyHash() const
 {
     // Extra-fast test for pay-to-pubkey-hash CScripts:

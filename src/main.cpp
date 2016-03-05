@@ -1606,6 +1606,17 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
     return true;
 }
 
+bool GetAddressIndex(uint160 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex)
+{
+    if (!fAddressIndex)
+        return error("%s: address index not enabled");
+
+    if (!pblocktree->ReadAddressIndex(addressHash, type, addressIndex))
+        return error("%s: unable to get txids for address");
+
+    return true;
+}
+
 /** Return transaction in tx, and if it was found inside a block, its hash is placed in hashBlock */
 bool GetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock, bool fAllowSlow)
 {

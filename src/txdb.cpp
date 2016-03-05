@@ -26,6 +26,7 @@ static const char DB_SAPLING_NULLIFIER = 'S';
 static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
+static const char DB_ADDRESSINDEX = 'd';
 static const char DB_BLOCK_INDEX = 'b';
 
 static const char DB_BEST_BLOCK = 'B';

@@ -39,7 +39,11 @@ typedef std::pair<CSpentIndexKey, CSpentIndexValue> CSpentIndexDbEntry;
 
 =======
 struct CAddressIndexKey;
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 >>>>>>> main: start of address index
+=======
+struct CAddressIndexIteratorKey;
+>>>>>>> main: index address index sorted by height
 class uint256;
 
 //! -dbcache default (MiB)

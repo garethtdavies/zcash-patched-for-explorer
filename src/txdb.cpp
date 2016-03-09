@@ -366,7 +366,7 @@ bool CBlockTreeDB::ReadAddressIndex(
 bool CBlockTreeDB::WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
-	batch.Write(make_pair(DB_ADDRESSINDEX, it->first), it->second);
+        batch.Write(make_pair(DB_ADDRESSINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
 
@@ -374,8 +374,12 @@ bool CBlockTreeDB::ReadAddressIndex(uint160 addressHash, int type, std::vector<s
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
     pcursor->Seek(make_pair(DB_ADDRESSINDEX, addressHash)); //TODO include type
 >>>>>>> main: start of address index
+=======
+    pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash)));
+>>>>>>> main: index address index sorted by height
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();

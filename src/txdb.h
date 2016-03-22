@@ -24,6 +24,7 @@ struct CAddressUnspentKey;
 struct CAddressUnspentValue;
 struct CAddressIndexKey;
 struct CAddressIndexIteratorKey;
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 struct CAddressIndexIteratorHeightKey;
 struct CSpentIndexKey;
 struct CSpentIndexValue;
@@ -44,6 +45,10 @@ struct CAddressIndexKey;
 =======
 struct CAddressIndexIteratorKey;
 >>>>>>> main: index address index sorted by height
+=======
+struct CTimestampIndexKey;
+struct CTimestampIndexIteratorKey;
+>>>>>>> main: add block timestamp index
 class uint256;
 
 //! -dbcache default (MiB)
@@ -118,7 +123,12 @@ public:
 =======
     bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
     bool ReadAddressIndex(uint160 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex);
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 >>>>>>> main: start of address index
+=======
+    bool WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);
+    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, std::vector<uint256> &vect);
+>>>>>>> main: add block timestamp index
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts();

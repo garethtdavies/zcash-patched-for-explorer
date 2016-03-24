@@ -371,16 +371,26 @@ bool CBlockTreeDB::WriteAddressIndex(const std::vector<std::pair<CAddressIndexKe
     return WriteBatch(batch);
 }
 
-bool CBlockTreeDB::ReadAddressIndex(uint160 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex) {
+bool CBlockTreeDB::ReadAddressIndex(uint160 addressHash, int type,
+                                    std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                                    int start, int end) {
 
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
     pcursor->Seek(make_pair(DB_ADDRESSINDEX, addressHash)); //TODO include type
 >>>>>>> main: start of address index
 =======
     pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash)));
 >>>>>>> main: index address index sorted by height
+=======
+    if (start > 0 && end > 0) {
+        pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash, start)));
+    } else {
+        pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash)));
+    }
+>>>>>>> main: get address deltas between range of block heights
 
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
@@ -467,6 +477,9 @@ bool CBlockTreeDB::ReadTimestampBlockIndex(const uint256 &hash, unsigned int &lt
 // END insightexplorer
 =======
         if (pcursor->GetKey(key) && key.first == DB_ADDRESSINDEX && key.second.hashBytes == addressHash) {
+            if (end > 0 && key.second.blockHeight > end) {
+                break;
+            }
             CAmount nValue;
             if (pcursor->GetValue(nValue)) {
                 addressIndex.push_back(make_pair(key.second, nValue));

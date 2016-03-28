@@ -123,11 +123,15 @@ public:
 =======
     bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
     bool ReadAddressIndex(uint160 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex);
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 >>>>>>> main: start of address index
 =======
 =======
+=======
+    bool EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+>>>>>>> main: update address index during reorgs
     bool ReadAddressIndex(uint160 addressHash, int type,
                           std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
                           int start = 0, int end = 0);

@@ -2290,6 +2290,8 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
     std::vector<CAddressUnspentDbEntry> addressUnspentIndex;
     std::vector<CSpentIndexDbEntry> spentIndex;
 
+    std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
         const CTransaction &tx = block.vtx[i];
@@ -2315,6 +2317,25 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
                         CAddressUnspentValue()));
                 }
             }
+        }
+
+        if (fAddressIndex) {
+
+            for (unsigned int k = tx.vout.size(); k-- > 0;) {
+                const CTxOut &out = tx.vout[k];
+
+                if (out.scriptPubKey.IsPayToScriptHash()) {
+                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
+                    addressIndex.push_back(make_pair(CAddressIndexKey(2, uint160(hashBytes), pindex->nHeight, i, hash, k, false), out.nValue));
+                } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
+                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
+                    addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, hash, k, false), out.nValue));
+                } else {
+                    continue;
+                }
+
+            }
+
         }
 
         // Check that all outputs are available and match the outputs in the block itself
@@ -2401,47 +2422,31 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
     if (fAddressIndex) {
         std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
 
-        for (unsigned int i = 0; i < block.vtx.size(); i++) {
-            const CTransaction &tx = block.vtx[i];
-            const uint256 txhash = tx.GetHash();
-
-            if (!tx.IsCoinBase()) {
-                for (size_t j = 0; j < tx.vin.size(); j++) {
+                if (fAddressIndex) {
                     const CTxOut &prevout = view.GetOutputFor(tx.vin[j]);
                     if (prevout.scriptPubKey.IsPayToScriptHash()) {
                         vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22);
-                        addressIndex.push_back(make_pair(CAddressIndexKey(2, uint160(hashBytes), pindex->nHeight, i, txhash, j, true), prevout.nValue * -1));
+                        addressIndex.push_back(make_pair(CAddressIndexKey(2, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
                     } else if (prevout.scriptPubKey.IsPayToPublicKeyHash()) {
                         vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+3, prevout.scriptPubKey.begin()+23);
-                        addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, txhash, j, true), prevout.nValue * -1));
+                        addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
                     } else {
                         continue;
                     }
                 }
             }
-
-            for (unsigned int k = 0; k < tx.vout.size(); k++) {
-                const CTxOut &out = tx.vout[k];
-
-                if (out.scriptPubKey.IsPayToScriptHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+2, out.scriptPubKey.begin()+22);
-                    addressIndex.push_back(make_pair(CAddressIndexKey(2, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
-                } else if (out.scriptPubKey.IsPayToPublicKeyHash()) {
-                    vector<unsigned char> hashBytes(out.scriptPubKey.begin()+3, out.scriptPubKey.begin()+23);
-                    addressIndex.push_back(make_pair(CAddressIndexKey(1, uint160(hashBytes), pindex->nHeight, i, txhash, k, false), out.nValue));
-                } else {
-                    continue;
-                }
-
-            }
-
         }
+    }
 
+    // set the old best anchor back
+    view.PopAnchor(blockUndo.old_tree_root);
+
+
+    if (fAddressIndex) {
         if (!pblocktree->EraseAddressIndex(addressIndex)) {
             return AbortNode(state, "Failed to delete address index");
         }
     }
-
 
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());

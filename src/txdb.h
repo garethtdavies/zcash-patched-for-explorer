@@ -18,6 +18,7 @@ class CBlockFileInfo;
 class CBlockIndex;
 struct CDiskTxPos;
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 
 // START insightexplorer
 struct CAddressUnspentKey;
@@ -39,6 +40,10 @@ typedef std::pair<CSpentIndexKey, CSpentIndexValue> CSpentIndexDbEntry;
 // END insightexplorer
 
 =======
+=======
+struct CAddressUnspentKey;
+struct CAddressUnspentValue;
+>>>>>>> main: index unspent outputs by address
 struct CAddressIndexKey;
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 >>>>>>> main: start of address index
@@ -103,6 +108,7 @@ public:
     bool ReadTxIndex(const uint256 &txid, CDiskTxPos &pos);
     bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &list);
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 
     // START insightexplorer
     bool UpdateAddressUnspentIndex(const std::vector<CAddressUnspentDbEntry> &vect);
@@ -121,6 +127,11 @@ public:
     // END insightexplorer
 
 =======
+=======
+    bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
+    bool ReadAddressUnspentIndex(uint160 addressHash, int type,
+                                 std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);
+>>>>>>> main: index unspent outputs by address
     bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df

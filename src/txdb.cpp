@@ -27,6 +27,7 @@ static const char DB_COINS = 'c';
 static const char DB_BLOCK_FILES = 'f';
 static const char DB_TXINDEX = 't';
 static const char DB_ADDRESSINDEX = 'd';
+static const char DB_ADDRESSUNSPENTINDEX = 'u';
 static const char DB_TIMESTAMPINDEX = 'S';
 static const char DB_BLOCK_INDEX = 'b';
 
@@ -302,12 +303,18 @@ bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos>
 }
 
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 // START insightexplorer
 // https://github.com/bitpay/bitcoin/commit/017f548ea6d89423ef568117447e61dd5707ec42#diff-81e4f16a1b5d5b7ca25351a63d07cb80R183
 bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<CAddressUnspentDbEntry> &vect)
 {
     CDBBatch batch(*this);
     for (std::vector<CAddressUnspentDbEntry>::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+=======
+bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect) {
+    CDBBatch batch(*this);
+    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
+>>>>>>> main: index unspent outputs by address
         if (it->second.IsNull()) {
             batch.Erase(make_pair(DB_ADDRESSUNSPENTINDEX, it->first));
         } else {
@@ -317,8 +324,14 @@ bool CBlockTreeDB::UpdateAddressUnspentIndex(const std::vector<CAddressUnspentDb
     return WriteBatch(batch);
 }
 
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type, std::vector<CAddressUnspentDbEntry> &unspentOutputs)
 {
+=======
+bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type,
+                                           std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs) {
+
+>>>>>>> main: index unspent outputs by address
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
     pcursor->Seek(make_pair(DB_ADDRESSUNSPENTINDEX, CAddressIndexIteratorKey(type, addressHash)));
@@ -326,6 +339,7 @@ bool CBlockTreeDB::ReadAddressUnspentIndex(uint160 addressHash, int type, std::v
     while (pcursor->Valid()) {
         boost::this_thread::interruption_point();
         std::pair<char,CAddressUnspentKey> key;
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
         if (!(pcursor->GetKey(key) && key.first == DB_ADDRESSUNSPENTINDEX && key.second.hashBytes == addressHash))
             break;
         CAddressUnspentValue nValue;
@@ -364,6 +378,24 @@ bool CBlockTreeDB::ReadAddressIndex(
         pcursor->Seek(make_pair(DB_ADDRESSINDEX, CAddressIndexIteratorKey(type, addressHash)));
     }
 =======
+=======
+        if (pcursor->GetKey(key) && key.first == DB_ADDRESSUNSPENTINDEX && key.second.hashBytes == addressHash) {
+            CAddressUnspentValue nValue;
+            if (pcursor->GetValue(nValue)) {
+                unspentOutputs.push_back(make_pair(key.second, nValue));
+                pcursor->Next();
+            } else {
+                return error("failed to get address unspent value");
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+
+>>>>>>> main: index unspent outputs by address
 bool CBlockTreeDB::WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++)

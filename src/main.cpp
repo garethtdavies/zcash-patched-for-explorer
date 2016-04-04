@@ -1607,6 +1607,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
 
         // Store transaction in memory
         pool.addUnchecked(hash, entry, !IsInitialBlockDownload());
+        if (fAddressIndex) {
+            pool.addAddressIndex(entry, view);
+        }
     }
 
     SyncWithWallets(tx, NULL);

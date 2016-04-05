@@ -53,7 +53,12 @@ struct CAddressIndexIteratorKey;
 =======
 struct CTimestampIndexKey;
 struct CTimestampIndexIteratorKey;
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 >>>>>>> main: add block timestamp index
+=======
+struct CSpentIndexKey;
+struct CSpentIndexValue;
+>>>>>>> main: add spentindex option
 class uint256;
 
 //! -dbcache default (MiB)
@@ -109,6 +114,7 @@ public:
     bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &list);
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 
     // START insightexplorer
     bool UpdateAddressUnspentIndex(const std::vector<CAddressUnspentDbEntry> &vect);
@@ -128,6 +134,10 @@ public:
 
 =======
 =======
+=======
+    bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+    bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
+>>>>>>> main: add spentindex option
     bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
     bool ReadAddressUnspentIndex(uint160 addressHash, int type,
                                  std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);

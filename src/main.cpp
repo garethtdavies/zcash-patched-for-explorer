@@ -1620,6 +1620,17 @@ bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, std::v
     return true;
 }
 
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
+{
+    if (!fSpentIndex)
+        return error("spent index not enabled");
+
+    if (!pblocktree->ReadSpentIndex(key, value))
+        return error("unable to get spent info");
+
+    return true;
+}
+
 bool GetAddressIndex(uint160 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, int start, int end)
 {
@@ -2299,6 +2310,7 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
 
     std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > addressUnspentIndex;
+    std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> > spentIndex;
 
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
@@ -2442,8 +2454,14 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
     if (fAddressIndex) {
         std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
 
+                const CTxIn input = tx.vin[j];
+
+                if (fSpentIndex) {
+                    // undo and delete the spent index
+                    spentIndex.push_back(make_pair(CSpentIndexKey(input.prevout.hash, input.prevout.n), CSpentIndexValue()));
+                }
+
                 if (fAddressIndex) {
-                    const CTxIn input = tx.vin[j];
                     const CTxOut &prevout = view.GetOutputFor(tx.vin[j]);
                     if (prevout.scriptPubKey.IsPayToScriptHash()) {
                         vector<unsigned char> hashBytes(prevout.scriptPubKey.begin()+2, prevout.scriptPubKey.begin()+22);
@@ -2468,6 +2486,7 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
                         continue;
                     }
                 }
+
             }
         }
     }
@@ -4543,6 +4562,10 @@ bool static LoadBlockIndexDB()
     pblocktree->ReadFlag("timestampindex", fTimestampIndex);
     LogPrintf("%s: timestamp index %s\n", __func__, fTimestampIndex ? "enabled" : "disabled");
 
+    // Check whether we have a spent index
+    pblocktree->ReadFlag("spentindex", fSpentIndex);
+    LogPrintf("%s: spent index %s\n", __func__, fSpentIndex ? "enabled" : "disabled");
+
     // Fill in-memory data
     BOOST_FOREACH(const PAIRTYPE(uint256, CBlockIndex*)& item, mapBlockIndex)
     {
@@ -4890,6 +4913,9 @@ bool InitBlockIndex() {
     // Use the provided setting for -timestampindex in the new database
     fTimestampIndex = GetBoolArg("-timestampindex", DEFAULT_TIMESTAMPINDEX);
     pblocktree->WriteFlag("timestampindex", fTimestampIndex);
+
+    fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);
+    pblocktree->WriteFlag("spentindex", fSpentIndex);
 
     LogPrintf("Initializing databases...\n");
 

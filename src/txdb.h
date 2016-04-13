@@ -26,9 +26,13 @@ struct CAddressUnspentValue;
 struct CAddressIndexKey;
 struct CAddressIndexIteratorKey;
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 struct CAddressIndexIteratorHeightKey;
 struct CSpentIndexKey;
 struct CSpentIndexValue;
+=======
+struct CAddressIndexIteratorHeightKey;
+>>>>>>> rpc: fix issue with querying txids by block heights
 struct CTimestampIndexKey;
 struct CTimestampIndexIteratorKey;
 struct CTimestampBlockIndexKey;

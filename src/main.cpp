@@ -2803,6 +2803,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                             CSpentIndexValue(hash, j, pindex->nHeight, prevout.nValue, scriptType, addrHash)));
                     }
                 }
+
             }
 
             // Add in sigops done by pay-to-script-hash inputs;

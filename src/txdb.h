@@ -58,8 +58,13 @@ struct CAddressIndexIteratorKey;
 struct CTimestampIndexKey;
 struct CTimestampIndexIteratorKey;
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 >>>>>>> main: add block timestamp index
 =======
+=======
+struct CTimestampBlockIndexKey;
+struct CTimestampBlockIndexValue;
+>>>>>>> logical timestamp indexing of block hashes
 struct CSpentIndexKey;
 struct CSpentIndexValue;
 >>>>>>> main: add spentindex option
@@ -162,11 +167,18 @@ public:
                           int start = 0, int end = 0);
 >>>>>>> main: get address deltas between range of block heights
     bool WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
     bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, std::vector<uint256> &vect);
 >>>>>>> main: add block timestamp index
+=======
+    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &vect);
+    bool WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts);
+    bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
+>>>>>>> logical timestamp indexing of block hashes
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts();
+    bool blockOnchainActive(const uint256 &hash);
 };
 
 #endif // BITCOIN_TXDB_H

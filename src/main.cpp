@@ -2426,6 +2426,7 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
                 const CTxInUndo &undo = txundo.vprevout[j];
                 if (!ApplyTxInUndo(undo, view, out))
                     fClean = false;
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 
                 // insightexplorer
                 // https://github.com/bitpay/bitcoin/commit/017f548ea6d89423ef568117447e61dd5707ec42#diff-7ec3c68a81efff79b6ca22ac1f1eabbaR2304
@@ -2475,6 +2476,8 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
     // undo address indexes
     if (fAddressIndex) {
         std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+=======
+>>>>>>> Fix rebased Insight explorer code for DisconnectBlock
 
                 const CTxIn input = tx.vin[j];
 
@@ -2508,14 +2511,23 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
                         continue;
                     }
                 }
-
             }
         }
     }
 
-    // set the old best anchor back
-    view.PopAnchor(blockUndo.old_tree_root);
+    // set the old best Sprout anchor back
+    view.PopAnchor(blockUndo.old_sprout_tree_root, SPROUT);
 
+    // set the old best Sapling anchor back
+    // We can get this from the `hashFinalSaplingRoot` of the last block
+    // However, this is only reliable if the last block was on or after
+    // the Sapling activation height. Otherwise, the last anchor was the
+    // empty root.
+    if (NetworkUpgradeActive(pindex->pprev->nHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
+        view.PopAnchor(pindex->pprev->hashFinalSaplingRoot, SAPLING);
+    } else {
+        view.PopAnchor(SaplingMerkleTree::empty_root(), SAPLING);
+    }
 
     if (fAddressIndex) {
         if (!pblocktree->EraseAddressIndex(addressIndex)) {

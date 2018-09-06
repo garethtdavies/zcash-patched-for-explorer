@@ -2414,55 +2414,6 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
                 if (!ApplyTxInUndo(undo, view, out))
                     fClean = false;
 
-                // insightexplorer
-                // https://github.com/bitpay/bitcoin/commit/017f548ea6d89423ef568117447e61dd5707ec42#diff-7ec3c68a81efff79b6ca22ac1f1eabbaR2304
-                const CTxIn input = tx.vin[j];
-                if (fAddressIndex && updateIndices) {
-                    const CTxOut &prevout = view.GetOutputFor(input);
-                    int const scriptType = prevout.scriptPubKey.Type();
-                    if (scriptType > 0) {
-                        uint160 const addrHash = prevout.scriptPubKey.AddressHash();
-
-                        // undo spending activity
-                        addressIndex.push_back(make_pair(
-                            CAddressIndexKey(scriptType, addrHash, pindex->nHeight, i, hash, j, true),
-                            prevout.nValue * -1));
-
-                        // restore unspent index
-                        addressUnspentIndex.push_back(make_pair(
-                            CAddressUnspentKey(scriptType, addrHash, input.prevout.hash, input.prevout.n),
-                            CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight)));
-                    }
-                }
-                // insightexplorer
-                if (fSpentIndex && updateIndices) {
-                    // undo and delete the spent index
-                    spentIndex.push_back(make_pair(
-                        CSpentIndexKey(input.prevout.hash, input.prevout.n),
-                        CSpentIndexValue()));
-                }
-            }
-        }
-    }
-
-    // set the old best Sprout anchor back
-    view.PopAnchor(blockUndo.old_sprout_tree_root, SPROUT);
-
-    // set the old best Sapling anchor back
-    // We can get this from the `hashFinalSaplingRoot` of the last block
-    // However, this is only reliable if the last block was on or after
-    // the Sapling activation height. Otherwise, the last anchor was the
-    // empty root.
-    if (NetworkUpgradeActive(pindex->pprev->nHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
-        view.PopAnchor(pindex->pprev->hashFinalSaplingRoot, SAPLING);
-    } else {
-        view.PopAnchor(SaplingMerkleTree::empty_root(), SAPLING);
-    }
-
-    // undo address indexes
-    if (fAddressIndex) {
-        std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
-
                 const CTxIn input = tx.vin[j];
 
                 if (fSpentIndex) {
@@ -2495,14 +2446,23 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
                         continue;
                     }
                 }
-
             }
         }
     }
 
-    // set the old best anchor back
-    view.PopAnchor(blockUndo.old_tree_root);
+    // set the old best Sprout anchor back
+    view.PopAnchor(blockUndo.old_sprout_tree_root, SPROUT);
 
+    // set the old best Sapling anchor back
+    // We can get this from the `hashFinalSaplingRoot` of the last block
+    // However, this is only reliable if the last block was on or after
+    // the Sapling activation height. Otherwise, the last anchor was the
+    // empty root.
+    if (NetworkUpgradeActive(pindex->pprev->nHeight, Params().GetConsensus(), Consensus::UPGRADE_SAPLING)) {
+        view.PopAnchor(pindex->pprev->hashFinalSaplingRoot, SAPLING);
+    } else {
+        view.PopAnchor(SaplingMerkleTree::empty_root(), SAPLING);
+    }
 
     if (fAddressIndex) {
         if (!pblocktree->EraseAddressIndex(addressIndex)) {

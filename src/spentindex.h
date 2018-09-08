@@ -17,10 +17,14 @@ struct CSpentIndexKey {
 
     template <typename Stream, typename Operation>
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
     inline void SerializationOp(Stream& s, Operation ser_action) {
 =======
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
 >>>>>>> main: spentindex for the mempool
+=======
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+>>>>>>> Fix serialization in Insight explorer code.
         READWRITE(txid);
         READWRITE(outputIndex);
     }
@@ -56,10 +60,14 @@ struct CSpentIndexValue {
 
     template <typename Stream, typename Operation>
 <<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
     inline void SerializationOp(Stream& s, Operation ser_action) {
 =======
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
 >>>>>>> main: spentindex for the mempool
+=======
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+>>>>>>> Fix serialization in Insight explorer code.
         READWRITE(txid);
         READWRITE(inputIndex);
         READWRITE(blockHeight);

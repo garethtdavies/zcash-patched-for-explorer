@@ -359,6 +359,7 @@ public:
         // in #2795.
         nSproutValuePoolCheckpointHeight = 440329;
         nSproutValuePoolCheckpointBalance = 40000029096803;
+        fSproutValuePoolCheckpointEnabled = true;
 
         // Founders reward script expects a vector of 2-of-3 multisig addresses
         vFoundersRewardAddress = {
@@ -473,6 +474,10 @@ public:
         // Founders reward script expects a vector of 2-of-3 multisig addresses
         vFoundersRewardAddress = { "t2FwcEhFdNXuFMv1tcYwaBJtYVtMj8b1uTg" };
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
+
+        // Enable Sprout shielded value pool checkpointing on
+        // regtest.
+        fSproutValuePoolCheckpointEnabled = true;
     }
 
     void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight)

@@ -2581,9 +2581,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         return true;
     }
 
-    // If we're on testnet, reject a block that results in a negative
-    // shielded value pool balance.
-    if (Params().NetworkIDString() == "test") {
+    // Reject a block that results in a negative shielded value pool balance.
+    if (Params().SproutValuePoolCheckpointEnabled()) {
         // Sprout
         //
         // We can expect nChainSproutValue to be valid after the hardcoded
@@ -3562,6 +3561,12 @@ void FallbackSproutValuePoolBalance(
     const CChainParams& chainparams
 )
 {
+    // We might not want to enable the checkpointing for mainnet
+    // yet.
+    if (!chainparams.SproutValuePoolCheckpointEnabled()) {
+        return;
+    }
+
     // Check if the height of this block matches the checkpoint
     if (pindex->nHeight == chainparams.SproutValuePoolCheckpointHeight()) {
         // Are we monitoring the Sprout pool?
@@ -3583,7 +3588,6 @@ void FallbackSproutValuePoolBalance(
 bool ReceivedBlockTransactions(const CBlock &block, CValidationState& state, CBlockIndex *pindexNew, const CDiskBlockPos& pos)
 {
     const CChainParams& chainparams = Params();
-    bool this_is_testnet = chainparams.NetworkIDString() == "test";
 
     pindexNew->nTx = block.vtx.size();
     pindexNew->nChainTx = 0;
@@ -3638,11 +3642,8 @@ bool ReceivedBlockTransactions(const CBlock &block, CValidationState& state, CBl
                 pindex->nChainSaplingValue = pindex->nSaplingValue;
             }
 
-            // Fall back to hardcoded Sprout value pool balance if we're on
-            // testnet.
-            if (this_is_testnet) {
-                FallbackSproutValuePoolBalance(pindex, chainparams);
-            }
+            // Fall back to hardcoded Sprout value pool balance
+            FallbackSproutValuePoolBalance(pindex, chainparams);
 
             {
                 LOCK(cs_nBlockSequenceId);
@@ -4296,7 +4297,6 @@ CBlockIndex * InsertBlockIndex(uint256 hash)
 bool static LoadBlockIndexDB()
 {
     const CChainParams& chainparams = Params();
-    bool this_is_testnet = chainparams.NetworkIDString() == "test";
 
     if (!pblocktree->LoadBlockIndexGuts())
         return false;
@@ -4344,11 +4344,8 @@ bool static LoadBlockIndexDB()
                 pindex->nChainSaplingValue = pindex->nSaplingValue;
             }
 
-            // Fall back to hardcoded Sprout value pool balance if we're on
-            // testnet.
-            if (this_is_testnet) {
-                FallbackSproutValuePoolBalance(pindex, chainparams);
-            }
+            // Fall back to hardcoded Sprout value pool balance
+            FallbackSproutValuePoolBalance(pindex, chainparams);
         }
         // Construct in-memory chain of branch IDs.
         // Relies on invariant: a block that does not activate a network upgrade

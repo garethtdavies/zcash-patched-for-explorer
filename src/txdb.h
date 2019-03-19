@@ -17,17 +17,18 @@
 class CBlockFileInfo;
 class CBlockIndex;
 struct CDiskTxPos;
+
+// START insightexplorer
 struct CAddressUnspentKey;
 struct CAddressUnspentValue;
 struct CAddressIndexKey;
 struct CAddressIndexIteratorKey;
 struct CAddressIndexIteratorHeightKey;
-struct CTimestampIndexKey;
-struct CTimestampIndexIteratorKey;
-struct CTimestampBlockIndexKey;
-struct CTimestampBlockIndexValue;
-struct CSpentIndexKey;
-struct CSpentIndexValue;
+
+typedef std::pair<CAddressUnspentKey, CAddressUnspentValue> CAddressUnspentDbEntry;
+typedef std::pair<CAddressIndexKey, CAmount> CAddressIndexDbEntry;
+// END insightexplorer
+
 class uint256;
 
 //! -dbcache default (MiB)
@@ -81,20 +82,15 @@ public:
     bool ReadReindexing(bool &fReindex);
     bool ReadTxIndex(const uint256 &txid, CDiskTxPos &pos);
     bool WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos> > &list);
-    bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
-    bool UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
-    bool UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
-    bool ReadAddressUnspentIndex(uint160 addressHash, int type,
-                                 std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);
-    bool WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
-    bool EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
-    bool ReadAddressIndex(uint160 addressHash, int type,
-                          std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
-                          int start = 0, int end = 0);
-    bool WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);
-    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &vect);
-    bool WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts);
-    bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
+
+    // START insightexplorer
+    bool UpdateAddressUnspentIndex(const std::vector<CAddressUnspentDbEntry> &vect);
+    bool ReadAddressUnspentIndex(uint160 addressHash, int type, std::vector<CAddressUnspentDbEntry> &vect);
+    bool WriteAddressIndex(const std::vector<CAddressIndexDbEntry> &vect);
+    bool EraseAddressIndex(const std::vector<CAddressIndexDbEntry> &vect);
+    bool ReadAddressIndex(uint160 addressHash, int type, std::vector<CAddressIndexDbEntry> &addressIndex, int start = 0, int end = 0);
+    // END insightexplorer
+
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
     bool LoadBlockIndexGuts();

@@ -201,6 +201,8 @@ unsigned int CScript::GetSigOpCount(const CScript& scriptSig) const
     return subscript.GetSigOpCount(true);
 }
 
+// insightexplorer
+// https://github.com/bitpay/bitcoin/commit/017f548ea6d89423ef568117447e61dd5707ec42#diff-f7ca24fb80ddba0f291cb66344ca6fcbR204
 bool CScript::IsPayToPublicKeyHash() const
 {
     // Extra-fast test for pay-to-pubkey-hash CScripts:
@@ -237,4 +239,33 @@ bool CScript::IsPushOnly() const
             return false;
     }
     return true;
+}
+
+// insightexplorer
+int CScript::Type() const
+{
+    if (this->IsPayToPublicKeyHash())
+        return 1;
+    if (this->IsPayToScriptHash())
+        return 2;
+    // We don't know this script
+    return 0;
+}
+
+// insightexplorer
+uint160 CScript::AddressHash() const
+{
+    // where the address bytes begin depends on the script type
+    int start;
+    if (this->IsPayToPublicKeyHash())
+        start = 3;
+    else if (this->IsPayToScriptHash())
+        start = 2;
+    else {
+        // unknown script type; return an empty vector
+        vector<unsigned char> hashBytes;
+        return uint160(hashBytes);
+    }
+    vector<unsigned char> hashBytes(this->begin()+start, this->begin()+start+20);
+    return uint160(hashBytes);
 }

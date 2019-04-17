@@ -564,6 +564,15 @@ bool CWallet::ChangeWalletPassphrase(const SecureString& strOldWalletPassphrase,
     return false;
 }
 
+void CWallet::ChainTipAdded(const CBlockIndex *pindex,
+                            const CBlock *pblock,
+                            SproutMerkleTree sproutTree,
+                            SaplingMerkleTree saplingTree)
+{
+    IncrementNoteWitnesses(pindex, pblock, sproutTree, saplingTree);
+    UpdateSaplingNullifierNoteMapForBlock(pblock);
+}
+
 void CWallet::ChainTip(const CBlockIndex *pindex, 
                        const CBlock *pblock,
                        SproutMerkleTree sproutTree,
@@ -571,11 +580,12 @@ void CWallet::ChainTip(const CBlockIndex *pindex,
                        bool added)
 {
     if (added) {
-        IncrementNoteWitnesses(pindex, pblock, sproutTree, saplingTree);
+        ChainTipAdded(pindex, pblock, sproutTree, saplingTree);
+        RunSaplingMigration(pindex->nHeight);
     } else {
         DecrementNoteWitnesses(pindex);
+        UpdateSaplingNullifierNoteMapForBlock(pblock);
     }
-    UpdateSaplingNullifierNoteMapForBlock(pblock);
 }
 
 void CWallet::RunSaplingMigration(int blockHeight) {
@@ -583,6 +593,9 @@ void CWallet::RunSaplingMigration(int blockHeight) {
         return;
     }
     LOCK(cs_wallet);
+    if (!fSaplingMigrationEnabled) {
+        return;
+    }
     // The migration transactions to be sent in a particular batch can take
     // significant time to generate, and this time depends on the speed of the user's
     // computer. If they were generated only after a block is seen at the target
@@ -2497,7 +2510,7 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
                 }
             }
             // Increment note witness caches
-            ChainTip(pindex, &block, sproutTree, saplingTree, true);
+            ChainTipAdded(pindex, &block, sproutTree, saplingTree);
 
             pindex = chainActive.Next(pindex);
             if (GetTime() >= nNow + 60) {

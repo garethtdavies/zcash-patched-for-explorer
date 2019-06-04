@@ -2304,7 +2304,11 @@ enum DisconnectResult
  *  When UNCLEAN or FAILED is returned, view is left in an indeterminate state.
  *  The addressIndex and spentIndex will be updated if requested.
  */
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
 static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& state,
+=======
+DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& state,
+>>>>>>> insightexplorer: resolve v2.0.4 rebase conflicts
     const CBlockIndex* pindex, CCoinsViewCache& view, bool const updateIndices)
 {
     assert(pindex->GetBlockHash() == view.GetBestBlock());
@@ -2511,6 +2515,13 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
                         continue;
                     }
                 }
+                // insightexplorer
+                if (fSpentIndex && updateIndices) {
+                    // undo and delete the spent index
+                    spentIndex.push_back(make_pair(
+                        CSpentIndexKey(input.prevout.hash, input.prevout.n),
+                        CSpentIndexValue()));
+                }
             }
         }
     }
@@ -2527,15 +2538,6 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
         view.PopAnchor(pindex->pprev->hashFinalSaplingRoot, SAPLING);
     } else {
         view.PopAnchor(SaplingMerkleTree::empty_root(), SAPLING);
-    }
-
-    if (fAddressIndex) {
-        if (!pblocktree->EraseAddressIndex(addressIndex)) {
-            return AbortNode(state, "Failed to delete address index");
-        }
-        if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
-            return AbortNode(state, "Failed to write address unspent index");
-        }
     }
 
     // move best block pointer to prevout block
@@ -2559,6 +2561,31 @@ static DisconnectResult DisconnectBlock(const CBlock& block, CValidationState& s
             return DISCONNECT_FAILED;
         }
     }
+<<<<<<< 6dabbe5bc7e5807fddaf7b67cea7cb80ce5578df
+
+    // move best block pointer to prevout block
+    view.SetBestBlock(pindex->pprev->GetBlockHash());
+
+    // insightexplorer
+    if (fAddressIndex && updateIndices) {
+        if (!pblocktree->EraseAddressIndex(addressIndex)) {
+            AbortNode(state, "Failed to delete address index");
+            return DISCONNECT_FAILED;
+        }
+        if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
+            AbortNode(state, "Failed to write address unspent index");
+            return DISCONNECT_FAILED;
+        }
+    }
+    // insightexplorer
+    if (fSpentIndex && updateIndices) {
+        if (!pblocktree->UpdateSpentIndex(spentIndex)) {
+            AbortNode(state, "Failed to write transaction index");
+            return DISCONNECT_FAILED;
+        }
+    }
+=======
+>>>>>>> insightexplorer: resolve v2.0.4 rebase conflicts
     return fClean ? DISCONNECT_OK : DISCONNECT_UNCLEAN;
 }
 
